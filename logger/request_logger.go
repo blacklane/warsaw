@@ -5,43 +5,21 @@ import (
 	"net"
 	"net/http"
 	"os"
-
-	"github.com/rs/zerolog"
-
+	
 	"github.com/blacklane/warsaw/logger/kiev_fields"
 	"github.com/blacklane/warsaw/request_context/constants"
 	"github.com/blacklane/warsaw/request_context/contexts"
 )
 
-type internalLogger interface {
-	UpdateContext(func(zerolog.Context) zerolog.Context)
-	Info() *zerolog.Event
-}
-
-type logger struct {
-	log internalLogger
-}
-
-type Event = zerolog.Event
-
-func (logger logger) Event(name string) *Event {
-	return logger.log.Info().Timestamp().Str(kiev_fields.Event, name)
-}
-
-func Get(ctx context.Context) logger {
-	return logger{zerolog.Ctx(ctx)}
-}
-
-func NewRequestLogger(appName string, req *http.Request) (logger, context.Context) {
-	zerolog.TimestampFieldName = kiev_fields.Timestamp
-	log := zerolog.New(os.Stdout)
+func NewRequestLogger(appName string, req *http.Request) (Logger, context.Context) {
+	log := newInternalLogger(os.Stdout)
 	loggingContext := log.WithContext(req.Context())
-	setRequestContext(&log, appName, req)
-	return logger{log: &log}, loggingContext
+	setupFromRequestContext(log, appName, req)
+	return logger{log: log}, loggingContext
 }
 
-func setRequestContext(log internalLogger, appName string, req *http.Request) {
-	log.UpdateContext(func(c zerolog.Context) zerolog.Context {
+func setupFromRequestContext(log internalLogger, appName string, req *http.Request) {
+	log.UpdateContext(func(c Context) Context {
 		ctx := req.Context()
 		entryPoint := len(req.Header.Get(constants.RequestIDHeader)) == 0
 
@@ -68,8 +46,11 @@ func hostName(req *http.Request) string {
 	return host
 }
 
+// LogErrorWithBody updates logging context with details of the error and responseBody payload.
+// This is later dumped with the request_finished event
 func LogErrorWithBody(ctx context.Context, err error, errName, responseBody string) {
-	Get(ctx).log.UpdateContext(func(c zerolog.Context) zerolog.Context {
+	internal, _ := Get(ctx).(logger)
+	internal.log.UpdateContext(func(c Context) Context {
 		return c.Str(kiev_fields.ErrorClass, errName).
 			AnErr(kiev_fields.ErrorMessage, err).
 			Str(kiev_fields.Body, responseBody)
