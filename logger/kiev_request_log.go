@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/blacklane/warsaw/logger/kiev_fields"
+	"github.com/blacklane/warsaw/request_context"
 )
 
 const (
@@ -14,7 +15,7 @@ const (
 
 func NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFunc {
 	return func(next http.HandlerFunc) http.HandlerFunc {
-		return func(w http.ResponseWriter, request *http.Request) {
+		return request_context.TrackerMiddleware(func(w http.ResponseWriter, request *http.Request) {
 			requestStart := time.Now()
 			logger, loggingContext := NewRequestLogger(appName, request)
 
@@ -34,7 +35,7 @@ func NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFun
 			}()
 
 			next.ServeHTTP(ww, request.WithContext(loggingContext))
-		}
+		})
 	}
 }
 

@@ -20,9 +20,9 @@ func TrackerMiddleware(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func SetTrackerHeaders(ctx context.Context, header *http.Header) {
-	header.Add(constants.RequestIDHeader, contexts.GetRequestID(ctx))
-	header.Add(constants.RequestDepthHeader, strconv.Itoa(contexts.GetRequestDepth(ctx)))
-	header.Add(constants.TreePathHeader, contexts.GetTreePath(ctx))
+	header.Set(constants.RequestIDHeader, contexts.GetRequestID(ctx))
+	header.Set(constants.RequestDepthHeader, strconv.Itoa(contexts.GetRequestDepth(ctx)))
+	header.Set(constants.TreePathHeader, contexts.GetTreePath(ctx))
 }
 
 func buildContextFromRequestContext(ctx context.Context, requestContext RequestContext) context.Context {
