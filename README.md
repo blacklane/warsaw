@@ -1,7 +1,5 @@
 # warsaw
-Warsaw is a JSON Logger and context-based middleware to log HTTP calls (and more) in Golang projects (in [Kiev](https://github.com/blacklane/kiev) format)
-
-The purpose of this module is to provide HTTP request context-aware logger for Golang projects.
+Warsaw is a JSON Logger and context-based middleware to log HTTP requests (and more) in Golang projects (in [Kiev](https://github.com/blacklane/kiev) format).
 
 ## Usage
 Add the middleware to your `http.HandlerFunc` stack. Example:
