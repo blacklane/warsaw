@@ -4,9 +4,9 @@ import (
 	"context"
 	"io"
 	"time"
-	
+
 	"github.com/rs/zerolog"
-	
+
 	"github.com/blacklane/warsaw/logger/kiev_fields"
 )
 
@@ -24,7 +24,7 @@ type Context = zerolog.Context
 func newInternalLogger(w io.Writer) internalLogger {
 	zerolog.TimestampFieldName = kiev_fields.Timestamp
 	zerolog.TimeFieldFormat = time.RFC3339Nano
-	
+
 	log := zerolog.New(w)
 	return &log
 }

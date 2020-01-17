@@ -2,6 +2,9 @@ package logger
 
 import (
 	"context"
+	"os"
+
+	"github.com/blacklane/warsaw/logger/kiev_fields"
 )
 
 type logger struct {
@@ -10,6 +13,7 @@ type logger struct {
 
 type Logger interface {
 	Event(name string) *Event
+	WithScope(map[string]interface{})
 }
 
 // Get returns Logger instance from the argument representing current `context.Context`. Useful to get the logger
@@ -17,4 +21,27 @@ type Logger interface {
 // the `Logger` out using this function.
 func Get(ctx context.Context) Logger {
 	return logger{internalLoggerFromContext(ctx)}
+}
+
+// NewStandalone creates a logger with appName in fresh Context which is also returned as second argument
+func NewStandalone(appName string) (Logger, context.Context) {
+	return New(context.Background(), appName)
+}
+
+// New creates a logger with appName specified and attaches it to the provided ctx and the enriched
+// context is returned as second value
+func New(ctx context.Context, appName string) (Logger, context.Context) {
+	log := newInternalLogger(os.Stdout)
+	loggingContext := log.WithContext(ctx)
+	log.UpdateContext(func(c Context) Context {
+		return c.Fields(map[string]interface{}{kiev_fields.Application: appName})
+	})
+	return logger{log: log}, loggingContext
+}
+
+// WithScope allows to add new fields to existing logger context
+func (logger logger) WithScope(fields map[string]interface{}) {
+	logger.log.UpdateContext(func(c Context) Context {
+		return c.Fields(fields)
+	})
 }
