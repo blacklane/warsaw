@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 	"os"
-	
+
 	"github.com/blacklane/warsaw/logger/kiev_fields"
 	"github.com/blacklane/warsaw/request_context/constants"
 	"github.com/blacklane/warsaw/request_context/contexts"
