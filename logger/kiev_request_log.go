@@ -13,6 +13,8 @@ const (
 	xForwardedForHeader = "X-Forwarded-For"
 )
 
+// NewKievRequestLogger creates a middleware that can wrap `http.HandlerFunc` of your server with logger
+// inside of the `request.Context()`.
 func NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFunc {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return request_context.TrackerMiddleware(func(w http.ResponseWriter, request *http.Request) {
