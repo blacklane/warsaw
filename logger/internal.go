@@ -12,13 +12,13 @@ import (
 
 // internalLogger shares interface of the logger and encapsulates the internal zerolog used for it's implementation
 type internalLogger interface {
-	Info() *Event
+	Info() *LoggedEvent
 	WithContext(context.Context) context.Context
 	UpdateContext(func(Context) Context)
 }
 
 // Type aliases to abstract internal zerolog
-type Event = zerolog.Event
+type LoggedEvent = zerolog.Event
 type Context = zerolog.Context
 
 func newInternalLogger(w io.Writer) internalLogger {

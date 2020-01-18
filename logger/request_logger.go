@@ -4,7 +4,6 @@ import (
 	"context"
 	"net"
 	"net/http"
-	"os"
 
 	"github.com/blacklane/warsaw/logger/kiev_fields"
 	"github.com/blacklane/warsaw/request_context/constants"
@@ -12,7 +11,7 @@ import (
 )
 
 func NewRequestLogger(appName string, req *http.Request) (Logger, context.Context) {
-	log := newInternalLogger(os.Stdout)
+	log := newInternalLogger(LogSink)
 	loggingContext := log.WithContext(req.Context())
 	setupFromRequestContext(log, appName, req)
 	return logger{log: log}, loggingContext

@@ -9,6 +9,6 @@ import (
 // Sample:
 //      log := logger.Get(ctx)
 //      log.Event("atlas_request").Int("response_status_code", resp.StatusCode).Dur("elapsed", time.Since(requestStart)).Str("url", fullUrl).Send()
-func (logger logger) Event(name string) *Event {
+func (logger logger) Event(name string) *LoggedEvent {
 	return logger.log.Info().Timestamp().Str(kiev_fields.Event, name)
 }

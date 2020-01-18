@@ -100,8 +100,14 @@ TODO Add explanation how to use it in lambda environment.
 
 ## API Reference
 
+* [logger.New(ctx context.Context, appName string) (Logger, context.Context)](#loggernewctx-contextcontext-appname-string-logger-contextcontext)
+* [logger.NewStandalone(appName string) (Logger, context.Context)](#loggernewstandaloneappname-string-logger-contextcontext)
+* [logger.DefaultLogger](#loggerdefaultlogger)
+* [logger.LogSink](#loggerlogsink)
+* [logger.Event(name string) *LoggedEvent](#loggereventname-string-loggedevent)
 * [logger.Get(ctx context.Context) Logger](#loggergetctx-contextcontext-logger) 
-* [(Logger)Event(name string) *Event](#loggereventname-string-event)
+* [(Logger)Event(name string) *LoggedEvent](#loggereventname-string-loggedevent)
+* [(Logger)WithScope(map[string]interface{})](#loggerwithscopemapstringinterface)
 * [logger.NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFunc](#loggernewkievrequestloggerappname-string-funchttphandlerfunc-httphandlerfunc) 
 * [logger.LogErrorWithBody(ctx context.Context, err error, errName, responseBody string)](#loggerlogerrorwithbodyctx-contextcontext-err-error-errname-responsebody-string)
 * [request_context.TrackerMiddleware(next http.HandlerFunc) http.HandlerFunc](#request_contexttrackermiddlewarenext-httphandlerfunc-httphandlerfunc)
@@ -112,11 +118,51 @@ TODO Add explanation how to use it in lambda environment.
 
 --- 
 
+### `logger.New(ctx context.Context, appName string) (Logger, context.Context)`
+
+Creates a new logger and records it in the ctx. Plus sets the application name to appName value.
+
+First returned value is the logger instance and second is enhanced context that includes the logger.
+
+### `logger.NewStandalone(appName string) (Logger, context.Context)`
+
+Creates a new logger based on `context.Background()` with provided appName for the logging context. Returns same values as plain `logger.New(...)` [function](#loggernewctx-contextcontext-appname-string-logger-contextcontext).
+
+### `logger.DefaultLogger`
+
+Default logger instance. It is used by `logger.Event(...)` function. It also has the [default](#loggerlogsink) `LogSink` set. Default logger cannot be overwritten and cannot have the scope updated.
+
+### `logger.LogSink`
+
+Allows to setup the logger output. By Default it's set to `os.Stdout`. But can be overwritten.     
+
+### `logger.Event(name string) *LoggedEvent`
+
+Logs message to the [DefaultLogger](#loggerdefaultlogger). Can be used directly to quickly log something to default LogSink. It only sets the `event`, `level` and `timestamp` fields. Plus anything set in the chain of methods.
+
+Sample:
+
+```go
+logger.Event("myEventName").Str("some", "data").Int("statusCode", 1234).Send()
+```
+
+logs:
+
+```json
+{
+  "level":"info",
+  "timestamp":"2020-01-18T18:50:26.795165+01:00",
+  "event":"myEventName",
+  "some":"data",
+  "statusCode": 1234 
+}
+```
+
 ### `logger.Get(ctx context.Context) Logger` 
 
 Returns Logger instance from the argument representing current `context.Context`. Useful to get the logger instance downstream somewhere deep in your app. Then you pass just the context instance all way down and get the `Logger` out using this function.
 
-### `(Logger)Event(name string) *Event`
+### `(Logger)Event(name string) *LoggedEvent`
 
 Logs single log line for an event with `name`. It can be called on result of `logger.Get()` method result. The API is same as for `zerolog.Event`. To persist the event you need to call `.Send()` on the returned value.
 
@@ -126,6 +172,34 @@ Sample:
 log := logger.Get(ctx) // to get the Logger instance from context.Context
 log.Event("atlas_request").Int("response_status_code", resp.StatusCode).Dur("elapsed", time.Since(requestStart)).Str("url", fullUrl).Send()
 ```
+
+### `(Logger)WithScope(map[string]interface{})`
+
+Updates the context of all logged events with that Logger instance. 
+
+Sample:
+
+```go
+log, _ := logger.NewStandalone("myApp")
+log.WithScope(map[string]interface{}{"important": "yes", "code": 42})
+log.Event("myEvent").Str("crucial", "sure").Send()
+```
+
+logs: 
+
+```json
+{
+    "level":"info", 
+    "application":"myApp",
+    "code":42,
+    "important":"yes",
+    "timestamp":"2020-01-18T18:48:08.708609+01:00",
+    "event":"myEvent", 
+    "crucial":"sure"
+}
+```
+
+So there is the shared scope from `WithScope` and anything defined inline.
 
 ### `logger.NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFunc` 
 
