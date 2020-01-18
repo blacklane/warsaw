@@ -100,19 +100,33 @@ TODO Add explanation how to use it in lambda environment.
 
 ## API Reference
 
+Package `logger`:
+
 * [logger.New(ctx context.Context, appName string) (Logger, context.Context)](#loggernewctx-contextcontext-appname-string-logger-contextcontext)
 * [logger.NewStandalone(appName string) (Logger, context.Context)](#loggernewstandaloneappname-string-logger-contextcontext)
 * [logger.DefaultLogger](#loggerdefaultlogger)
 * [logger.LogSink](#loggerlogsink)
 * [logger.Event(name string) *LoggedEvent](#loggereventname-string-loggedevent)
-* [logger.Get(ctx context.Context) Logger](#loggergetctx-contextcontext-logger) 
+* [logger.Get(ctx context.Context) Logger](#loggergetctx-contextcontext-logger)
+
+Interface `Logger` from package `logger`:
+ 
 * [(Logger)Event(name string) *LoggedEvent](#loggereventname-string-loggedevent)
 * [(Logger)WithScope(map[string]interface{})](#loggerwithscopemapstringinterface)
+
+HTTP request handlers:
+
 * [logger.NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFunc](#loggernewkievrequestloggerappname-string-funchttphandlerfunc-httphandlerfunc) 
 * [logger.LogErrorWithBody(ctx context.Context, err error, errName, responseBody string)](#loggerlogerrorwithbodyctx-contextcontext-err-error-errname-responsebody-string)
+
+Package `request_context`:
+
 * [request_context.TrackerMiddleware(next http.HandlerFunc) http.HandlerFunc](#request_contexttrackermiddlewarenext-httphandlerfunc-httphandlerfunc)
 * [request_context.SetTrackerHeaders(ctx, &req.Header)](#request_contextsettrackerheadersctx-reqheader)
 * [request_context.RequestRouteTracker(route string, next http.HandlerFunc) http.HandlerFunc](#request_contextrequestroutetrackerroute-string-next-httphandlerfunc-httphandlerfunc)
+
+Sub-package `contexts` from `request_context`:
+
 * [request_context/contexts.GetRequestID(ctx context.Context) string](#request_contextcontextsgetrequestidctx-contextcontext-string)
 * [request_context/contexts.GetRequestRoute(ctx context.Context) string](#request_contextcontextsgetrequestroutectx-contextcontext-string)
 
