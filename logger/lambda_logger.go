@@ -8,6 +8,8 @@ import (
 	"github.com/blacklane/warsaw/logger/kiev_fields"
 )
 
+// NewLambdaLogger returns a logger and enhanced context which is ready to log details of request in JSON responses
+// compatible with Kiev format.
 func NewLambdaLogger(ctx context.Context) (Logger, context.Context) {
 	log, loggingContext := New(ctx, lambdacontext.FunctionName)
 	setupFromLambdaContext(log, ctx)

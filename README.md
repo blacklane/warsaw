@@ -259,6 +259,8 @@ HTTP request handlers:
 
 * [logger.NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFunc](#loggernewkievrequestloggerappname-string-funchttphandlerfunc-httphandlerfunc) 
 * [logger.LogErrorWithBody(ctx context.Context, err error, errName, responseBody string)](#loggerlogerrorwithbodyctx-contextcontext-err-error-errname-responsebody-string)
+* [NewLambdaLogger(ctx context.Context) (Logger, context.Context)](#newlambdaloggerctx-contextcontext-logger-contextcontext)
+
 
 Package `request_context`:
 
@@ -397,6 +399,10 @@ func main() {
     http.ListenAndServe(":12345", nil)
 }
 ```
+
+### `NewLambdaLogger(ctx context.Context) (Logger, context.Context)`
+
+Returns a logger and enhanced context which is ready to log details of request in JSON responses compatible with Kiev format.
 
 ### `request_context.TrackerMiddleware(next http.HandlerFunc) http.HandlerFunc`
 
