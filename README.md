@@ -176,7 +176,67 @@ log, enrichedContext := logger.New(existingContext, "yourAppName")
  
 ### AWS Lambda
 
-TODO Add explanation how to use it in lambda environment. 
+For now there is no extra middleware for lambdaHandlers but it can be used with existing setup and simple instruction that builds the logger and registers it in the handler context.
+
+```go
+package main
+
+import (
+        "fmt"
+        "context"
+        "github.com/aws/aws-lambda-go/lambda"
+        "github.com/blacklane/warsaw/logger"
+)
+
+type MyEvent struct {
+        Name string `json:"name"`
+}
+
+func otherMethod(ctx context.Context) {
+    log := logger.Get(ctx)
+    log.Event("I'm").Msg("insideMethod")
+}
+
+func HandleRequest(ctx context.Context, name MyEvent) (string, error) {
+        log, loggerContext := logger.NewLambdaLogger(ctx)
+        log.Event("Called").Str("the_name", name.Name).Send()
+        otherMethod(loggerContext)
+        return fmt.Sprintf("Hello %s!", name.Name ), nil
+}
+
+func main() {
+        lambda.Start(HandleRequest)
+}
+```
+
+that would log events as follows:
+
+```json
+{
+  "level": "info",
+  "application": "myTestLambda",
+  "entry_point": true,
+  "lambda_function_arn": "arn:aws:lambda:eu-central-1:12345678901:function:myTestLambda",
+  "lambda_function_version": "$LATEST",
+  "lambda_memory_limit_in_mb": 512,
+  "request_id": "4303499d-fccf-4cef-850c-26de69030463",
+  "timestamp": "2020-01-20T14:47:05.491402536Z",
+  "event": "Called",
+  "the_name": "value1"
+}
+{
+  "level": "info",
+  "application": "myTestLambda",
+  "entry_point": true,
+  "lambda_function_arn": "arn:aws:lambda:eu-central-1:12345678901:function:myTestLambda",
+  "lambda_function_version": "$LATEST",
+  "lambda_memory_limit_in_mb": 512,
+  "request_id": "4303499d-fccf-4cef-850c-26de69030463",
+  "timestamp": "2020-01-20T14:47:05.491476597Z",
+  "event": "I'm",
+  "message": "insideMethod"
+}
+```
 
 ## API Reference
 
