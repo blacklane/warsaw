@@ -42,16 +42,10 @@ func hostName(req *http.Request) string {
 // LogErrorWithBody updates logging context with details of the error and responseBody payload.
 // This is later dumped with the request_finished event
 func LogErrorWithBody(ctx context.Context, err error, errName, responseBody string) {
-	internal, _ := Get(ctx).(logger)
-	internal.log.UpdateContext(func(c Context) Context {
-		return c.Str(kiev_fields.ErrorClass, errName).
-			AnErr(kiev_fields.ErrorMessage, err).
-			Str(kiev_fields.Body, responseBody)
+	log := Get(ctx)
+	log.WithScope(map[string]interface{}{
+		kiev_fields.ErrorClass:   errName,
+		kiev_fields.ErrorMessage: err,
+		kiev_fields.Body:         responseBody,
 	})
-	// log := Get(ctx)
-	// log.WithScope(map[string]interface{}{
-	// 	kiev_fields.ErrorClass: errName,
-	// 	kiev_fields.ErrorMessage: err,
-	// 	kiev_fields.Body: responseBody,
-	// })
 }
