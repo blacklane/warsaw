@@ -11,8 +11,9 @@ type logger struct {
 }
 
 type Logger interface {
-	Event(name string) *LoggedEvent
+	eventLogger
 	WithScope(map[string]interface{})
+	IsDisabled() bool
 }
 
 // Get returns Logger instance from the argument representing current `context.Context`. Useful to get the logger
@@ -23,14 +24,18 @@ func Get(ctx context.Context) Logger {
 }
 
 // New creates a logger with appName specified and attaches it to the provided ctx and the enriched
-// context is returned as second value
+// context is returned as second value. If already logger exists in the context it returns it as it is.
 func New(ctx context.Context, appName string) (Logger, context.Context) {
+	if existingLogger := Get(ctx); !existingLogger.IsDisabled() {
+		return existingLogger, ctx
+	}
+
 	log := newInternalLogger(LogSink)
 	loggingContext := log.WithContext(ctx)
 	log.UpdateContext(func(c Context) Context {
 		return c.Fields(map[string]interface{}{kiev_fields.Application: appName})
 	})
-	return logger{log: log}, loggingContext
+	return logger{log}, loggingContext
 }
 
 // NewStandalone creates a logger with appName in fresh Context( `context.Background()` ) return as 2nd value
@@ -43,4 +48,8 @@ func (logger logger) WithScope(fields map[string]interface{}) {
 	logger.log.UpdateContext(func(c Context) Context {
 		return c.Fields(fields)
 	})
+}
+
+func (logger logger) IsDisabled() bool {
+	return logger.log.GetLevel() == disabledLoggerLevel
 }

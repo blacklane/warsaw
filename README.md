@@ -41,7 +41,7 @@ func PingHandler(w http.ResponseWriter, req *http.Request) {
 func main() {
   loggerMiddleware := logger.NewKievRequestLogger("MyAppName")
   handlerWithContext := request_context.TrackerMiddleware(loggerMiddleware(PingHandler))
-  routeHandler := request_context.RequestRouteTracker("ping", handlerWithContext)
+  routeHandler := request_context.RouteTracker("ping", handlerWithContext§)
 
   http.HandleFunc("/ping", routeHandler)
   http.ListenAndServe(":8080", nil)
@@ -93,7 +93,87 @@ Lines logged to STDOUT will have the following format:
 
 ### Standalone app logger
 
+There are 3 options to use the standalone logger without requestContext. 
 
+#### Using `DefaultLogger` 
+
+Which always prints to the standard output (`os.Stdout`) with module global function: `Event`:
+
+```go
+package main
+import "github.com/blacklane/warsaw/logger"
+
+func main() {
+    logger.Event("myPlainEvent").Msg("log my line")
+    logger.Event("myComplexEvent").Str("aString", "field").Int("num", 422).Bool("valid", false).Err(fmt.Errorf("something failed")).Send()
+}
+```
+
+would log two lines, one in simple mode and second more complex. Without application context but with timestamp fields. Like:
+
+```json
+{
+    "level":"info", 
+    "message":"log my line",
+    "timestamp":"2020-01-18T18:48:08.708608+01:00",
+    "event":"myPlainEvent"
+}
+{
+    "level":"info", 
+    "num":42,
+    "aString":"field",
+    "valid":false,
+    "timestamp":"2020-01-18T18:48:08.708609+01:00",
+    "event":"myComplexEvent", 
+    "error":"something failed"
+}
+```  
+
+#### Second sing context-less standalone logger. 
+
+But you need to provide the application name and as a return you will get the logger instance + the context.Context that contains the logger if you would like to pass it to some underlying functions. Because plain log instance is not recommended to be passed directly. 
+
+```go
+log, loggerContext := logger.NewStandalone("myAppName")
+log.Event("Log").Msg("me")
+
+func aFunction(ctx context.Context){
+    theLogger := logger.Get(ctx)
+    theLogger.Event("inFunction").Bool("theLogger", true).Send()
+}
+
+aFunction(loggerContext)
+```
+
+Would log something like this:
+
+```json
+{
+    "level":"info", 
+    "application": "myAppName",
+    "timestamp":"2020-01-18T18:48:08.708608+01:00",
+    "event":"Log",
+    "message":"me"
+}
+{
+    "level":"info", 
+    "application": "myAppName",
+    "timestamp":"2020-01-18T18:48:08.708609+01:00",
+    "event":"inFunction", 
+    "theLogger": true
+}
+```
+
+#### Pure logger.New(context, appName)
+
+This way is creating a logger similar way as `NewStandalone` but also registers it in existing context. In certain situations you might have existing context.Context instnce that you're passing already through the app (e.g. when you use http server) and this way you can simply enrich it with the logger.
+
+To create it and use exactly same as the NewStandalone call:
+
+```go
+log, enrichedContext := logger.New(existingContext, "yourAppName")
+```
+ 
 ### AWS Lambda
 
 TODO Add explanation how to use it in lambda environment. 
@@ -113,6 +193,7 @@ Interface `Logger` from package `logger`:
  
 * [(Logger)Event(name string) *LoggedEvent](#loggereventname-string-loggedevent)
 * [(Logger)WithScope(map[string]interface{})](#loggerwithscopemapstringinterface)
+* [(Logger) IsDisabled() bool](#loggerisdisabled-bool)
 
 HTTP request handlers:
 
@@ -123,7 +204,7 @@ Package `request_context`:
 
 * [request_context.TrackerMiddleware(next http.HandlerFunc) http.HandlerFunc](#request_contexttrackermiddlewarenext-httphandlerfunc-httphandlerfunc)
 * [request_context.SetTrackerHeaders(ctx, &req.Header)](#request_contextsettrackerheadersctx-reqheader)
-* [request_context.RequestRouteTracker(route string, next http.HandlerFunc) http.HandlerFunc](#request_contextrequestroutetrackerroute-string-next-httphandlerfunc-httphandlerfunc)
+* [request_context.RouteTracker(route string, next http.HandlerFunc) http.HandlerFunc](#request_contextroutetrackerroute-string-next-httphandlerfunc-httphandlerfunc)
 
 Sub-package `contexts` from `request_context`:
 
@@ -136,7 +217,7 @@ Sub-package `contexts` from `request_context`:
 
 Creates a new logger and records it in the ctx. Plus sets the application name to appName value.
 
-First returned value is the logger instance and second is enhanced context that includes the logger.
+First returned value is the logger instance and second is enhanced context that includes the logger. If already logger exists in the context it returns it as it is.
 
 ### `logger.NewStandalone(appName string) (Logger, context.Context)`
 
@@ -215,6 +296,10 @@ logs:
 
 So there is the shared scope from `WithScope` and anything defined inline.
 
+### `(Logger)IsDisabled() bool` 
+
+Returns `true` if the logger is disabled or not available in current `context.Context`.
+
 ### `logger.NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFunc` 
 
 Creates a middleware that can wrap `http.HandlerFunc` of your server with logger inside `request.Context()` 
@@ -248,7 +333,7 @@ func MyHandler(w http.ResponseWriter, req *http.Request) {
 
 func main() {
     middleware := logger.NewKievRequestLogger("myApp")
-    http.HandlerFunc(middleware(MyHandler))
+    http.HandlerFunc("/", middleware(MyHandler))
     http.ListenAndServe(":12345", nil)
 }
 ```
@@ -273,11 +358,11 @@ httpClient := &http.Client{}
 resp, err := httpClient.Do(req) // the called fullUrl will be done with all correct headers passed from the originated request 
 ```
 
-### `request_context.RequestRouteTracker(route string, next http.HandlerFunc) http.HandlerFunc`
+### `request_context.RouteTracker(route string, next http.HandlerFunc) http.HandlerFunc§`
 
 To add extra context related to route name behind particular `http.HandlerFunc` you can wrap your call with this extra middleware and specify in first argument the name of the route. It will then be reported with every line of the logged events.  
 
-Sample of use of `RequestRouteTracker` and `TrackerHandler` together but without the `NewKievRequestLogger`:
+Sample of use of `RouteTracker` and `TrackerHandler` together but without the `NewKievRequestLogger`§:
 
 ```go
 func pingHandler(w http.ResponseWriter, req *http.Request) {
@@ -291,7 +376,7 @@ func main() {
 
 func route(routeName string, handler http.HandlerFunc) {
 	handlerWithContext := request_context.TrackerMiddleware(handler)
-	routeHandler := request_context.RequestRouteTracker(routeName, handlerWithContext)
+	routeHandler := request_context.RouteTracker(routeName, handlerWithContext§)
 	http.HandleFunc(path, routeHandler)
 }
 ```  
@@ -302,4 +387,4 @@ Use this method if you need to access the `RequestId` recorded using `TrackingMi
 
 ### `request_context/contexts.GetRequestRoute(ctx context.Context) string`
  
- Use this method if you need to access the `RequestRoute` recorded using `RequestRouteTracker` directly in your code.
+ Use this method if you need to access the `RequestRoute` recorded using `RouteTracker` directly in your code§.

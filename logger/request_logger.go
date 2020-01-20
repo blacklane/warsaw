@@ -11,29 +11,23 @@ import (
 )
 
 func NewRequestLogger(appName string, req *http.Request) (Logger, context.Context) {
-	log := newInternalLogger(LogSink)
-	loggingContext := log.WithContext(req.Context())
-	setupFromRequestContext(log, appName, req)
-	return logger{log: log}, loggingContext
+	log, loggingContext := New(req.Context(), appName)
+	setupFromRequestContext(log, req)
+	return log, loggingContext
 }
 
-func setupFromRequestContext(log internalLogger, appName string, req *http.Request) {
-	log.UpdateContext(func(c Context) Context {
-		ctx := req.Context()
-		entryPoint := len(req.Header.Get(constants.RequestIDHeader)) == 0
-
-		return c.Fields(map[string]interface{}{
-			kiev_fields.Application:  appName,
-			kiev_fields.EntryPoint:   entryPoint,
-			kiev_fields.RequestID:    contexts.GetRequestID(ctx),
-			kiev_fields.RequestDepth: contexts.GetRequestDepth(ctx),
-			kiev_fields.TreePath:     contexts.GetTreePath(ctx),
-			kiev_fields.Route:        contexts.GetRequestRoute(ctx),
-			kiev_fields.Host:         hostName(req),
-			kiev_fields.Verb:         req.Method,
-			kiev_fields.Path:         req.URL.Path,
-		})
-
+func setupFromRequestContext(log Logger, req *http.Request) {
+	ctx := req.Context()
+	entryPoint := len(req.Header.Get(constants.RequestIDHeader)) == 0
+	log.WithScope(map[string]interface{}{
+		kiev_fields.EntryPoint:   entryPoint,
+		kiev_fields.RequestID:    contexts.GetRequestID(ctx),
+		kiev_fields.RequestDepth: contexts.GetRequestDepth(ctx),
+		kiev_fields.TreePath:     contexts.GetTreePath(ctx),
+		kiev_fields.Route:        contexts.GetRequestRoute(ctx),
+		kiev_fields.Host:         hostName(req),
+		kiev_fields.Verb:         req.Method,
+		kiev_fields.Path:         req.URL.Path,
 	})
 }
 
@@ -54,4 +48,10 @@ func LogErrorWithBody(ctx context.Context, err error, errName, responseBody stri
 			AnErr(kiev_fields.ErrorMessage, err).
 			Str(kiev_fields.Body, responseBody)
 	})
+	// log := Get(ctx)
+	// log.WithScope(map[string]interface{}{
+	// 	kiev_fields.ErrorClass: errName,
+	// 	kiev_fields.ErrorMessage: err,
+	// 	kiev_fields.Body: responseBody,
+	// })
 }
