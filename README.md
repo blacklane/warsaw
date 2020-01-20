@@ -129,7 +129,7 @@ would log two lines, one in simple mode and second more complex. Without applica
 }
 ```  
 
-#### Second sing context-less standalone logger. 
+#### Second, context-less standalone logger. 
 
 But you need to provide the application name and as a return you will get the logger instance + the context.Context that contains the logger if you would like to pass it to some underlying functions. Because plain log instance is not recommended to be passed directly. 
 
@@ -164,7 +164,7 @@ Would log something like this:
 }
 ```
 
-#### Pure logger.New(context, appName)
+#### Third, Pure logger.New(context, appName)
 
 This way is creating a logger similar way as `NewStandalone` but also registers it in existing context. In certain situations you might have existing context.Context instnce that you're passing already through the app (e.g. when you use http server) and this way you can simply enrich it with the logger.
 
@@ -259,7 +259,7 @@ HTTP request handlers:
 
 * [logger.NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFunc](#loggernewkievrequestloggerappname-string-funchttphandlerfunc-httphandlerfunc) 
 * [logger.LogErrorWithBody(ctx context.Context, err error, errName, responseBody string)](#loggerlogerrorwithbodyctx-contextcontext-err-error-errname-responsebody-string)
-* [NewLambdaLogger(ctx context.Context) (Logger, context.Context)](#newlambdaloggerctx-contextcontext-logger-contextcontext)
+* [logger.NewLambdaLogger(ctx context.Context) (Logger, context.Context)](#loggernewlambdaloggerctx-contextcontext-logger-contextcontext)
 
 
 Package `request_context`:
@@ -400,7 +400,7 @@ func main() {
 }
 ```
 
-### `NewLambdaLogger(ctx context.Context) (Logger, context.Context)`
+### `logger.NewLambdaLogger(ctx context.Context) (Logger, context.Context)`
 
 Returns a logger and enhanced context which is ready to log details of request in JSON responses compatible with Kiev format.
 
