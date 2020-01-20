@@ -41,7 +41,7 @@ func PingHandler(w http.ResponseWriter, req *http.Request) {
 func main() {
   loggerMiddleware := logger.NewKievRequestLogger("MyAppName")
   handlerWithContext := request_context.TrackerMiddleware(loggerMiddleware(PingHandler))
-  routeHandler := request_context.RouteTracker("ping", handlerWithContext§)
+  routeHandler := request_context.RouteTracker("ping", handlerWithContext)
 
   http.HandleFunc("/ping", routeHandler)
   http.ListenAndServe(":8080", nil)
@@ -358,11 +358,11 @@ httpClient := &http.Client{}
 resp, err := httpClient.Do(req) // the called fullUrl will be done with all correct headers passed from the originated request 
 ```
 
-### `request_context.RouteTracker(route string, next http.HandlerFunc) http.HandlerFunc§`
+### `request_context.RouteTracker(route string, next http.HandlerFunc) http.HandlerFunc`
 
 To add extra context related to route name behind particular `http.HandlerFunc` you can wrap your call with this extra middleware and specify in first argument the name of the route. It will then be reported with every line of the logged events.  
 
-Sample of use of `RouteTracker` and `TrackerHandler` together but without the `NewKievRequestLogger`§:
+Sample of use of `RouteTracker` and `TrackerHandler` together but without the `NewKievRequestLogger`:
 
 ```go
 func pingHandler(w http.ResponseWriter, req *http.Request) {
@@ -376,7 +376,7 @@ func main() {
 
 func route(routeName string, handler http.HandlerFunc) {
 	handlerWithContext := request_context.TrackerMiddleware(handler)
-	routeHandler := request_context.RouteTracker(routeName, handlerWithContext§)
+	routeHandler := request_context.RouteTracker(routeName, handlerWithContext)
 	http.HandleFunc(path, routeHandler)
 }
 ```  
@@ -387,4 +387,4 @@ Use this method if you need to access the `RequestId` recorded using `TrackingMi
 
 ### `request_context/contexts.GetRequestRoute(ctx context.Context) string`
  
- Use this method if you need to access the `RequestRoute` recorded using `RouteTracker` directly in your code§.
+ Use this method if you need to access the `RequestRoute` recorded using `RouteTracker` directly in your code.
