@@ -10,7 +10,7 @@ type requestIDContext int
 
 const requestIDKey requestIDContext = 0
 
-// GetRequestID allows to access the RequestId details from the context.
+// GetRequestID allows to access the RequestID details from the context.
 func GetRequestID(ctx context.Context) string {
 	if requestID, ok := ctx.Value(requestIDKey).(string); ok {
 		return requestID

@@ -18,9 +18,13 @@ type internalLogger interface {
 	GetLevel() Level
 }
 
-// Type aliases to abstract internal zerolog
+// LoggedEvent is a type-alias for zerolog.Event
 type LoggedEvent = zerolog.Event
+
+// Context is a type-alias for zerolog.Context
 type Context = zerolog.Context
+
+// Level is a type-alias for zerolog.Level
 type Level = zerolog.Level
 
 const disabledLoggerLevel = zerolog.Disabled

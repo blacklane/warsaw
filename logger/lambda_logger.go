@@ -12,11 +12,11 @@ import (
 // compatible with Kiev format.
 func NewLambdaLogger(ctx context.Context) (Logger, context.Context) {
 	log, loggingContext := New(ctx, lambdacontext.FunctionName)
-	setupFromLambdaContext(log, ctx)
+	setupFromLambdaContext(ctx, log)
 	return log, loggingContext
 }
 
-func setupFromLambdaContext(log Logger, ctx context.Context) {
+func setupFromLambdaContext(ctx context.Context, log Logger) {
 	lc, _ := lambdacontext.FromContext(ctx)
 
 	log.WithScope(map[string]interface{}{

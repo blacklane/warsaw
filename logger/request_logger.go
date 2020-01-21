@@ -10,6 +10,7 @@ import (
 	"github.com/blacklane/warsaw/request_context/contexts"
 )
 
+// NewRequestLogger registers logger on the request and it's context and loads the logger scope from the request context.
 func NewRequestLogger(appName string, req *http.Request) (Logger, context.Context) {
 	log, loggingContext := New(req.Context(), appName)
 	setupFromRequestContext(log, req)

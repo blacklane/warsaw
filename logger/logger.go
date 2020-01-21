@@ -10,6 +10,7 @@ type logger struct {
 	log internalLogger
 }
 
+// Logger is an interface for the returned logger instance
 type Logger interface {
 	eventLogger
 	WithScope(map[string]interface{})

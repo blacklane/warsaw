@@ -21,7 +21,7 @@ func NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFun
 			requestStart := time.Now()
 			logger, loggingContext := NewRequestLogger(appName, request)
 
-			ww := NewLoggedResponseWriter(w)
+			ww := newLoggedResponseWriter(w)
 			defer func() {
 				logger.
 					Event(kiev_fields.RequestFinishedEvent).
@@ -42,13 +42,13 @@ func NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFun
 }
 
 func ipAddress(request *http.Request) string {
-	forwardedIp := request.Header.Get(xForwardedForHeader)
-	if len(forwardedIp) == 0 {
+	forwardedIP := request.Header.Get(xForwardedForHeader)
+	if len(forwardedIP) == 0 {
 		ip, _, err := net.SplitHostPort(request.RemoteAddr)
 		if err != nil {
 			ip = request.RemoteAddr
 		}
 		return ip
 	}
-	return forwardedIp
+	return forwardedIP
 }

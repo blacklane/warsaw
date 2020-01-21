@@ -11,9 +11,9 @@ import (
 )
 
 func TestSoleNewKievRequestLogger(t *testing.T) {
-	expectedReqId := "request-UUID"
+	expectedReqIP := "request-UUID"
 	req, err := http.NewRequest("GET", "/ping", nil)
-	req.Header.Set(constants.RequestIDHeader, expectedReqId)
+	req.Header.Set(constants.RequestIDHeader, expectedReqIP)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,8 +26,8 @@ func TestSoleNewKievRequestLogger(t *testing.T) {
 		handler.ServeHTTP(rr, req)
 	})
 
-	if reqId := rr.Header().Get(constants.RequestIDHeader); reqId != expectedReqId {
-		t.Errorf("handler returned unexpected X-Request-Id header: got `%v` want %v", reqId, expectedReqId)
+	if reqID := rr.Header().Get(constants.RequestIDHeader); reqID != expectedReqIP {
+		t.Errorf("handler returned unexpected X-Request-Id header: got `%v` want %v", reqID, expectedReqIP)
 	}
 
 	expectedEvent := map[string]string{"level": "info", "application": "testApp", "entry_point": "false", "path": "/ping", "request_depth": "0", "request_id": "request-UUID", "route": "", "tree_path": "T", "verb": "GET", "event": "request_finished", "body": "", "ip": "", "params": "", "user_agent": "", "status": "200"}
