@@ -1,6 +1,8 @@
 # warsaw
 Warsaw is a JSON Logger and context-based middleware to log HTTP requests (and more) in Golang projects (in [Kiev](https://github.com/blacklane/kiev) format).
 
+[![GoDoc](https://godoc.org/github.com/blacklane/warsaw?status.svg)](https://godoc.org/github.com/blacklane/warsaw)
+
 ## Development
  
 The project is standalone [Go Module](https://blog.golang.org/using-go-modules). So everything as for regular gomodule applies, e.g. `go mod tidy`, `go build` and `go list -m all` commands. 
@@ -15,7 +17,7 @@ There is variety of projects you might want to use this lib.
 * [Standalone app logger](#standalone-app-logger) (e.g. Kafka consumer project)
 * [AWS Lambda](#aws-lambda)
 
-But it all starts presumably with importing the dependency in your code with `import "github.com/blacklane/warsaw/logger"`. Yet it in details showcased in use-cases below and described in public [API reference](#api-reference) below.
+But it all starts presumably with importing the dependency in your code with `import "github.com/blacklane/warsaw/logger"`. Yet it in details showcased in use-cases below and described in public [API reference](#api-reference-with-examples) below.
 
 ### HTTP requests
 Add the middleware to your `http.HandlerFunc` stack. Example:
@@ -238,7 +240,9 @@ that would log events as follows:
 }
 ```
 
-## API Reference
+## API Reference (with examples)
+
+Below you can find most important functions and variables to use. With examples of a use-case. More docs can be found on [GoDoc](https://godoc.org/github.com/blacklane/warsaw). 
 
 Package `logger`:
 
