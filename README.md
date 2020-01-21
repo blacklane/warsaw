@@ -193,8 +193,8 @@ type MyEvent struct {
 }
 
 func otherMethod(ctx context.Context) {
-    log := logger.Get(ctx)
-    log.Event("I'm").Msg("insideMethod")
+        log := logger.Get(ctx)
+        log.Event("I'm").Msg("insideMethod")
 }
 
 func HandleRequest(ctx context.Context, name MyEvent) (string, error) {
@@ -291,7 +291,7 @@ Default logger instance. It is used by `logger.Event(...)` function. It also has
 
 ### `logger.LogSink`
 
-Allows to setup the logger output. By Default it's set to `os.Stdout`. But can be overwritten.     
+Allows to setup the logger output. By Default it's set to `os.Stdout`. But can be overwritten before the logger is initialized. The `DefaultLogger` output cannot be changed.     
 
 ### `logger.Event(name string) *LoggedEvent`
 
