@@ -1,5 +1,6 @@
 package kiev_fields
 
+// exposed kiev_fields
 const (
 	Application  = "application"
 	Timestamp    = "timestamp"

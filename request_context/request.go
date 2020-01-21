@@ -9,11 +9,13 @@ import (
 	"github.com/blacklane/warsaw/request_context/constants"
 )
 
+// RequestContext provides details on the HTTP request tracked by warsaw/Logger
 type RequestContext struct {
-	RequestId, TreePath string
+	RequestID, TreePath string
 	RequestDepth        int
 }
 
+// ExtractRequestContext creates the RequestContext from http.Request instance
 func ExtractRequestContext(r *http.Request) RequestContext {
 	return RequestContext{
 		extractRequestID(r),
@@ -35,11 +37,12 @@ func extractRequestDepth(r *http.Request) int {
 	if err != nil {
 		depth = 0
 	} else {
-		depth += 1
+		depth++
 	}
 	return depth
 }
 
+// TreePathSuffix defines what should be added to Request tracking tree_path as definition of the current path.
 var TreePathSuffix = "T"
 
 func extractTreePath(r *http.Request) string {

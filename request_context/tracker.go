@@ -9,14 +9,14 @@ import (
 	"github.com/blacklane/warsaw/request_context/contexts"
 )
 
-// TrackerMiddleware will record the `RequestContext` instance in the context of the request + pass the RequestId
+// TrackerMiddleware will record the `RequestContext` instance in the context of the request + pass the RequestID
 // to the response Headers accordingly.
 func TrackerMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, request *http.Request) {
 		requestContext := ExtractRequestContext(request)
 		ctx := buildContextFromRequestContext(request.Context(), requestContext)
 
-		w.Header().Set(constants.RequestIDHeader, requestContext.RequestId)
+		w.Header().Set(constants.RequestIDHeader, requestContext.RequestID)
 		next.ServeHTTP(w, request.WithContext(ctx))
 	}
 }
@@ -29,7 +29,7 @@ func SetTrackerHeaders(ctx context.Context, header *http.Header) {
 }
 
 func buildContextFromRequestContext(ctx context.Context, requestContext RequestContext) context.Context {
-	ctx = contexts.WithRequestID(ctx, requestContext.RequestId)
+	ctx = contexts.WithRequestID(ctx, requestContext.RequestID)
 	ctx = contexts.WithRequestDepth(ctx, requestContext.RequestDepth)
 	ctx = contexts.WithTreePath(ctx, requestContext.TreePath)
 	return ctx
