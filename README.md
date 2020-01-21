@@ -95,7 +95,7 @@ Lines logged to STDOUT will have the following format:
 
 There are 3 options to use the standalone logger without requestContext. 
 
-#### Using `DefaultLogger` 
+#### 1. Via `DefaultLogger` and `logger.Event(name)...` 
 
 Which always prints to the standard output (`os.Stdout`) with module global function: `Event`:
 
@@ -129,7 +129,7 @@ would log two lines, one in simple mode and second more complex. Without applica
 }
 ```  
 
-#### Second, context-less standalone logger. 
+#### 2. With context-less standalone logger. 
 
 But you need to provide the application name and as a return you will get the logger instance + the context.Context that contains the logger if you would like to pass it to some underlying functions. Because plain log instance is not recommended to be passed directly. 
 
@@ -164,7 +164,7 @@ Would log something like this:
 }
 ```
 
-#### Third, Pure logger.New(context, appName)
+#### 3. Using pure logger.New(context, appName)
 
 This way is creating a logger similar way as `NewStandalone` but also registers it in existing context. In certain situations you might have existing context.Context instnce that you're passing already through the app (e.g. when you use http server) and this way you can simply enrich it with the logger.
 
