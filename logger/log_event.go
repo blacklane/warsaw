@@ -6,6 +6,7 @@ import (
 
 type eventLogger interface {
 	Event(name string) *LoggedEvent
+	Error(name string, err error) *LoggedEvent
 }
 
 // Event logs single log line for an event with `name`. It can be called on result of `logger.Get()` method result.
@@ -17,7 +18,18 @@ func (logger logger) Event(name string) *LoggedEvent {
 	return logger.log.Info().Timestamp().Str(kiev_fields.Event, name)
 }
 
+// Error logs single log line for an event with the log level set to error. It passes the `err` parameter in to
+// zerolog, which prints it as part of the log line.
+func (logger logger) Error(name string, err error) *LoggedEvent {
+	return logger.log.Err(err).Timestamp().Str(kiev_fields.Event, name)
+}
+
 // Event package function logs message with DefaultLogger
 func Event(name string) *LoggedEvent {
 	return DefaultLogger.Event(name)
+}
+
+// Event package function logs message with DefaultLogger on loglevel error
+func Error(name string, err error) *LoggedEvent {
+	return DefaultLogger.Error(name, err)
 }
