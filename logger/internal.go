@@ -13,6 +13,7 @@ import (
 // internalLogger shares interface of the logger and encapsulates the internal zerolog used for it's implementation
 type internalLogger interface {
 	Info() *LoggedEvent
+	Err(err error) *LoggedEvent
 	WithContext(context.Context) context.Context
 	UpdateContext(func(Context) Context)
 	GetLevel() Level
