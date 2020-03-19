@@ -18,14 +18,14 @@ func defaultLogger() {
 		Err(errors.New("something failed")).
 		Msg("foo failed")
 
-	logger.ErrorEvent("An event", errors.New("error")).
+	logger.Error("An event", errors.New("error")).
 		Msg("Failed to create something")
 }
 
 func standaloneLogger() {
 	log, ctx := logger.New(context.TODO(), "myAppName")
 	log.Event("An event").Msg("hello world")
-	log.ErrorEvent("An event", errors.New("error")).Msg("Failed to create something")
+	log.Error("An event", errors.New("error")).Msg("Failed to create something")
 
 	useLoggerFromContext(ctx)
 }
