@@ -5,7 +5,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambdacontext"
 
-	"github.com/blacklane/warsaw/logger/kiev_fields"
+	"github.com/blacklane/warsaw/constants"
 )
 
 // NewLambdaLogger returns a logger and enhanced context which is ready to log details of request in JSON responses
@@ -20,8 +20,8 @@ func setupFromLambdaContext(ctx context.Context, log Logger) {
 	lc, _ := lambdacontext.FromContext(ctx)
 
 	log.WithScope(map[string]interface{}{
-		kiev_fields.RequestID:       lc.AwsRequestID,
-		kiev_fields.EntryPoint:      true,
+		constants.FieldRequestID:    lc.AwsRequestID,
+		constants.FieldEntryPoint:   true,
 		"lambda_function_arn":       lc.InvokedFunctionArn,
 		"lambda_function_version":   lambdacontext.FunctionVersion,
 		"lambda_memory_limit_in_mb": lambdacontext.MemoryLimitInMB,

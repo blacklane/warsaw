@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/blacklane/warsaw/request_context/constants"
+	"github.com/blacklane/warsaw/constants"
 )
 
 // RequestContext provides details on the HTTP request tracked by warsaw/Logger
@@ -25,7 +25,7 @@ func ExtractRequestContext(r *http.Request) RequestContext {
 }
 
 func extractRequestID(r *http.Request) string {
-	requestID := r.Header.Get(constants.RequestIDHeader)
+	requestID := r.Header.Get(constants.HeaderRequestID)
 	if len(requestID) == 0 {
 		requestID = uuid.New().String()
 	}
@@ -33,7 +33,7 @@ func extractRequestID(r *http.Request) string {
 }
 
 func extractRequestDepth(r *http.Request) int {
-	depth, err := strconv.Atoi(r.Header.Get(constants.RequestDepthHeader))
+	depth, err := strconv.Atoi(r.Header.Get(constants.HeaderRequestDepth))
 	if err != nil {
 		depth = 0
 	} else {
@@ -46,7 +46,7 @@ func extractRequestDepth(r *http.Request) int {
 var TreePathSuffix = "T"
 
 func extractTreePath(r *http.Request) string {
-	treePath := r.Header.Get(constants.TreePathHeader) + TreePathSuffix
+	treePath := r.Header.Get(constants.HeaderTreePath) + TreePathSuffix
 
 	return treePath
 }

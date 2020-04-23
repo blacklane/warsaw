@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/blacklane/warsaw/logger/kiev_fields"
+	"github.com/blacklane/warsaw/constants"
 	"github.com/blacklane/warsaw/request_context"
 )
 
@@ -24,15 +24,15 @@ func NewKievRequestLogger(appName string) func(http.HandlerFunc) http.HandlerFun
 			ww := newLoggedResponseWriter(w)
 			defer func() {
 				logger.
-					Event(kiev_fields.RequestFinishedEvent).
+					Event(constants.EventRequestFinished).
 					Fields(map[string]interface{}{
-						kiev_fields.Params:    request.URL.RawQuery,
-						kiev_fields.IP:        ipAddress(request),
-						kiev_fields.UserAgent: request.UserAgent(),
-						kiev_fields.Body:      ww.Body(),
+						constants.FieldParams:    request.URL.RawQuery,
+						constants.FieldIP:        ipAddress(request),
+						constants.FieldUserAgent: request.UserAgent(),
+						constants.FieldBody:      ww.Body(),
 					}).
-					Int(kiev_fields.Status, ww.StatusCode()).
-					Dur(kiev_fields.RequestDuration, time.Since(requestStart)).
+					Int(constants.FieldStatus, ww.StatusCode()).
+					Dur(constants.FieldRequestDuration, time.Since(requestStart)).
 					Send()
 			}()
 

@@ -5,8 +5,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/blacklane/warsaw/logger/kiev_fields"
-	"github.com/blacklane/warsaw/request_context/constants"
+	"github.com/blacklane/warsaw/constants"
 	"github.com/blacklane/warsaw/request_context/contexts"
 )
 
@@ -19,16 +18,16 @@ func NewRequestLogger(appName string, req *http.Request) (Logger, context.Contex
 
 func setupFromRequestContext(log Logger, req *http.Request) {
 	ctx := req.Context()
-	entryPoint := len(req.Header.Get(constants.RequestIDHeader)) == 0
+	entryPoint := len(req.Header.Get(constants.HeaderRequestID)) == 0
 	log.WithScope(map[string]interface{}{
-		kiev_fields.EntryPoint:   entryPoint,
-		kiev_fields.RequestID:    contexts.GetRequestID(ctx),
-		kiev_fields.RequestDepth: contexts.GetRequestDepth(ctx),
-		kiev_fields.TreePath:     contexts.GetTreePath(ctx),
-		kiev_fields.Route:        contexts.GetRequestRoute(ctx),
-		kiev_fields.Host:         hostName(req),
-		kiev_fields.Verb:         req.Method,
-		kiev_fields.Path:         req.URL.Path,
+		constants.FieldEntryPoint:   entryPoint,
+		constants.FieldRequestID:    contexts.GetRequestID(ctx),
+		constants.FieldRequestDepth: contexts.GetRequestDepth(ctx),
+		constants.FieldTreePath:     contexts.GetTreePath(ctx),
+		constants.FieldRoute:        contexts.GetRequestRoute(ctx),
+		constants.FieldHost:         hostName(req),
+		constants.FieldVerb:         req.Method,
+		constants.FieldPath:         req.URL.Path,
 	})
 }
 
@@ -45,8 +44,8 @@ func hostName(req *http.Request) string {
 func LogErrorWithBody(ctx context.Context, err error, errName, responseBody string) {
 	log := Get(ctx)
 	log.WithScope(map[string]interface{}{
-		kiev_fields.ErrorClass:   errName,
-		kiev_fields.ErrorMessage: err,
-		kiev_fields.Body:         responseBody,
+		constants.FieldErrorClass:   errName,
+		constants.FieldErrorMessage: err,
+		constants.FieldBody:         responseBody,
 	})
 }

@@ -7,16 +7,17 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/blacklane/warsaw/request_context/constants"
+	"github.com/blacklane/warsaw/constants"
 )
 
 func TestSoleNewKievRequestLogger(t *testing.T) {
 	expectedReqIP := "request-UUID"
 	req, err := http.NewRequest("GET", "/ping", nil)
-	req.Header.Set(constants.RequestIDHeader, expectedReqIP)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	req.Header.Set(constants.HeaderRequestID, expectedReqIP)
 
 	rr := httptest.NewRecorder()
 	noop := func(w http.ResponseWriter, request *http.Request) {}
@@ -26,7 +27,7 @@ func TestSoleNewKievRequestLogger(t *testing.T) {
 		handler.ServeHTTP(rr, req)
 	})
 
-	if reqID := rr.Header().Get(constants.RequestIDHeader); reqID != expectedReqIP {
+	if reqID := rr.Header().Get(constants.HeaderRequestID); reqID != expectedReqIP {
 		t.Errorf("handler returned unexpected X-Request-Id header: got `%v` want %v", reqID, expectedReqIP)
 	}
 
