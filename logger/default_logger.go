@@ -15,7 +15,3 @@ type defaultLogger interface {
 func buildDefaultLogger(sink io.Writer) defaultLogger {
 	return logger{newInternalLogger(sink)}
 }
-
-func init() {
-	DefaultLogger = buildDefaultLogger(LogSink)
-}

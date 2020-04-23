@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aws/aws-lambda-go/lambda"
-
 	"github.com/blacklane/warsaw/logger"
 )
 
@@ -24,8 +22,4 @@ func handleRequest(ctx context.Context, name MyEvent) (string, error) {
 
 	foo(ctx)
 	return fmt.Sprintf("Hello %s!", name.Name), nil
-}
-
-func main() {
-	lambda.Start(handleRequest)
 }

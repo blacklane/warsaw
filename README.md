@@ -30,76 +30,44 @@ go get -u github.com/blacklane/warsaw
 ## Usage
 
 It log to the standard output (`os.Stdout`). All the outputs shown below are pretty printed for convenience, 
-`warsaw`'s output is not pretty printed. All examples are in [examples](examples/)
+`warsaw`'s output is not pretty printed. All examples are in [examples](examples/).
 
 ### HTTP requests
 
-Add the middleware to your `http.Handler`:
+Add the middleware to a `http.Handler`:
 
 ```go
-package main
+	loggerMiddleware := NewHttpHandlerLogger()
 
-import (
-	"fmt"
-	"net/http"
+	h := loggerMiddleware(
+		http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) { _, _ = fmt.Fprint(w, "Hello, world") }))
+	http.Handle("hello", h)
 
-	"github.com/blacklane/warsaw/logger"
-)
+	// Output:
+	// {"level":"info","application":"application name","entry_point":true,"host":"example.com","ip":"192.0.2.1","params":"","path":"/hello","request_depth":0,"request_id":"42","route":"","tree_path":"","user_agent":"","verb":"GET","request_duration":1000,"status":0,"timestamp":"2009-11-10T23:00:02Z","event":"request_finished","message":"GET /hello"}
 
-func pingHandler(w http.ResponseWriter, req *http.Request) {
-	log := logger.Get(req.Context())
-
-	log.Event("ping_started").Str("some_field", "value").Int("some_int", 123).Send()
-
-	_, _ = fmt.Fprint(w, "ping")
-}
-
-func addLogMiddleware() {
-	loggerMiddleware := logger.NewKievRequestLogger("MyAppName")
-
-	http.HandleFunc("/ping", loggerMiddleware(pingHandler))
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		panic(err)
-	}
-}
 ```
 
 ```json
 {
-  "level": "info",
-  "application": "MyAppName",
+  "application": "application name",
   "entry_point": true,
-  "host": "localhost",
-  "path": "/ping",
-  "request_depth": 0,
-  "request_id": "85bec38d-1057-4ec6-88af-bed508e98594",
-  "route": "ping",
-  "tree_path": "T",
-  "verb": "GET",
-  "timestamp": "2019-11-05T16:24:38+01:00",
-  "event": "ping_started",
-  "some_field": "value",
-  "some_int": 123
-}
-{
-  "level": "info",
-  "application": "MyAppName",
-  "entry_point": true,
-  "host": "localhost",
-  "path": "/ping",
-  "request_depth": 0,
-  "request_id": "85bec38d-1057-4ec6-88af-bed508e98594",
-  "route": "ping",
-  "tree_path": "T",
-  "verb": "GET",
-  "timestamp": "2019-11-05T16:24:38+01:00",
   "event": "request_finished",
-  "body": "",
-  "ip": "::1",
+  "host": "example.com",
+  "ip": "192.0.2.1",
+  "level": "info",
+  "message": "GET /hello",
   "params": "",
-  "user_agent": "curl/7.54.0",
-  "status": 200,
-  "request_duration": 0.366895
+  "path": "/foo",
+  "request_depth": 0,
+  "request_duration": 1000,
+  "request_id": "42",
+  "route": "",
+  "status": 0,
+  "timestamp": "2009-11-10T23:00:02Z",
+  "tree_path": "",
+  "user_agent": "",
+  "verb": "GET"
 }
 ```
 

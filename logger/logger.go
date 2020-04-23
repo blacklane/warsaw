@@ -3,7 +3,7 @@ package logger
 import (
 	"context"
 
-	"github.com/blacklane/warsaw/logger/kiev_fields"
+	"github.com/blacklane/warsaw/constants"
 )
 
 type logger struct {
@@ -13,6 +13,7 @@ type logger struct {
 // Logger is an interface for the returned logger instance
 type Logger interface {
 	eventLogger
+	WithFields(map[string]interface{})
 	WithScope(map[string]interface{})
 	IsDisabled() bool
 }
@@ -32,11 +33,10 @@ func New(ctx context.Context, appName string) (Logger, context.Context) {
 	}
 
 	log := newInternalLogger(LogSink)
-	loggingContext := log.WithContext(ctx)
 	log.UpdateContext(func(c Context) Context {
-		return c.Fields(map[string]interface{}{kiev_fields.Application: appName})
+		return c.Fields(map[string]interface{}{constants.FieldApplication: appName})
 	})
-	return logger{log}, loggingContext
+	return logger{log}, log.WithContext(ctx)
 }
 
 // NewStandalone creates a logger with appName in fresh Context( `context.Background()` ) return as 2nd value
@@ -44,11 +44,16 @@ func NewStandalone(appName string) (Logger, context.Context) {
 	return New(context.Background(), appName)
 }
 
-// WithScope allows to add new fields to existing logger context
-func (logger logger) WithScope(fields map[string]interface{}) {
+func (logger logger) WithFields(fields map[string]interface{}) {
 	logger.log.UpdateContext(func(c Context) Context {
 		return c.Fields(fields)
 	})
+}
+
+// WithScope allows to add new fields to existing logger context
+// Deprecated: use WithFields instead
+func (logger logger) WithScope(fields map[string]interface{}) {
+	logger.WithFields(fields)
 }
 
 func (logger logger) IsDisabled() bool {

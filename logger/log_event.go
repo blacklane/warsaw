@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/blacklane/warsaw/logger/kiev_fields"
+	"github.com/blacklane/warsaw/constants"
 )
 
 type eventLogger interface {
@@ -15,13 +15,13 @@ type eventLogger interface {
 //      log := logger.Get(ctx)
 //      log.Event("atlas_request").Int("response_status_code", resp.StatusCode).Dur("elapsed", time.Since(requestStart)).Str("url", fullUrl).Send()
 func (logger logger) Event(name string) *LoggedEvent {
-	return logger.log.Info().Timestamp().Str(kiev_fields.Event, name)
+	return logger.log.Info().Timestamp().Str(constants.FieldEvent, name)
 }
 
 // Error logs single log line for an event with the log level set to error. It passes the `err` parameter in to
 // zerolog, which prints it as part of the log line.
 func (logger logger) Error(name string, err error) *LoggedEvent {
-	return logger.log.Err(err).Timestamp().Str(kiev_fields.Event, name)
+	return logger.log.Err(err).Timestamp().Str(constants.FieldEvent, name)
 }
 
 // Event package function logs message with DefaultLogger

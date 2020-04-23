@@ -34,8 +34,3 @@ func useLoggerFromContext(ctx context.Context) {
 	log := logger.Get(ctx)
 	log.Event("useLoggerFromContext").Bool("aTruth", true).Msg("hello :)")
 }
-
-func main() {
-	standaloneLogger()
-	defaultLogger()
-}
