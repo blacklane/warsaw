@@ -17,19 +17,21 @@ func TrackerMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		ctx := buildContextFromRequestContext(request.Context(), requestContext)
 
 		w.Header().Set(constants.RequestIDHeader, requestContext.RequestID)
+		w.Header().Set(constants.TrackingIDHeader, requestContext.RequestID)
 		next.ServeHTTP(w, request.WithContext(ctx))
 	}
 }
 
 // SetTrackerHeaders is useful if you want to pass headers to a downstream net/http.Request.
 func SetTrackerHeaders(ctx context.Context, header *http.Header) {
+	header.Set(constants.TrackingIDHeader, contexts.GetTrackingID(ctx))
 	header.Set(constants.RequestIDHeader, contexts.GetRequestID(ctx))
 	header.Set(constants.RequestDepthHeader, strconv.Itoa(contexts.GetRequestDepth(ctx)))
 	header.Set(constants.TreePathHeader, contexts.GetTreePath(ctx))
 }
 
 func buildContextFromRequestContext(ctx context.Context, requestContext RequestContext) context.Context {
-	ctx = contexts.WithRequestID(ctx, requestContext.RequestID)
+	ctx = contexts.WithTrackingID(ctx, requestContext.RequestID)
 	ctx = contexts.WithRequestDepth(ctx, requestContext.RequestDepth)
 	ctx = contexts.WithTreePath(ctx, requestContext.TreePath)
 	return ctx

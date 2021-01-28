@@ -18,13 +18,18 @@ type RequestContext struct {
 // ExtractRequestContext creates the RequestContext from http.Request instance
 func ExtractRequestContext(r *http.Request) RequestContext {
 	return RequestContext{
-		extractRequestID(r),
+		extractTrackingID(r),
 		extractTreePath(r),
 		extractRequestDepth(r),
 	}
 }
 
-func extractRequestID(r *http.Request) string {
+func extractTrackingID(r *http.Request) string {
+	trackingID := r.Header.Get(constants.TrackingIDHeader)
+	if trackingID != "" {
+		return trackingID
+	}
+
 	requestID := r.Header.Get(constants.RequestIDHeader)
 	if len(requestID) == 0 {
 		requestID = uuid.New().String()

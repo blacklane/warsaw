@@ -6,6 +6,7 @@ const (
 	Timestamp    = "timestamp"
 	EntryPoint   = "entry_point"
 	RequestID    = "request_id"
+	TrackingID   = "tracking_id"
 	RequestDepth = "request_depth"
 	TreePath     = "tree_path"
 	Route        = "route"

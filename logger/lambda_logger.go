@@ -21,6 +21,7 @@ func setupFromLambdaContext(ctx context.Context, log Logger) {
 
 	log.WithScope(map[string]interface{}{
 		kiev_fields.RequestID:       lc.AwsRequestID,
+		kiev_fields.TrackingID:      lc.AwsRequestID,
 		kiev_fields.EntryPoint:      true,
 		"lambda_function_arn":       lc.InvokedFunctionArn,
 		"lambda_function_version":   lambdacontext.FunctionVersion,
