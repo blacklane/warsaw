@@ -19,10 +19,11 @@ func NewRequestLogger(appName string, req *http.Request) (Logger, context.Contex
 
 func setupFromRequestContext(log Logger, req *http.Request) {
 	ctx := req.Context()
-	entryPoint := len(req.Header.Get(constants.RequestIDHeader)) == 0
+	entryPoint := len(req.Header.Get(constants.RequestIDHeader)) == 0 && len(req.Header.Get(constants.TrackingIDHeader)) == 0
 	log.WithScope(map[string]interface{}{
 		kiev_fields.EntryPoint:   entryPoint,
 		kiev_fields.RequestID:    contexts.GetRequestID(ctx),
+		kiev_fields.TrackingID:   contexts.GetTrackingID(ctx),
 		kiev_fields.RequestDepth: contexts.GetRequestDepth(ctx),
 		kiev_fields.TreePath:     contexts.GetTreePath(ctx),
 		kiev_fields.Route:        contexts.GetRequestRoute(ctx),
